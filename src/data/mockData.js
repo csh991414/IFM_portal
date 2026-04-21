@@ -11,23 +11,17 @@ export const MOCK_INTERFACES = [
   { id:'IF-010', name:'국세청 원천징수',       system:'국세청',      protocol:'Batch', method:'SFTP', status:'inactive', tps:0,  errRate:0,   latency:0,   target:'/batch/tax/withholding' },
 ];
 
-export const MOCK_LOGS = Array.from({ length: 100 }, (_, i) => {
-  const levels = ['INFO', 'WARN', 'ERROR', 'DEBUG'];
-  const level = levels[Math.floor(Math.random() * levels.length)];
-  const txId = `TX-${100000 + i}`;
-  const iface = MOCK_INTERFACES[i % MOCK_INTERFACES.length];
-  return {
-    id: `L-${i}`,
-    level,
-    txId,
-    ifName: iface.name,
-    msg: `${iface.name} 처리 ${level === 'ERROR' ? '실패: Connection Timeout' : '성공'}`,
-    duration: Math.floor(Math.random() * 500),
-    createdAt: new Date(Date.now() - i * 60000).toISOString(),
-  };
-});
+export const MOCK_LOGS = Array.from({ length: 120 }).map((_, i) => ({
+  id: `log-${i}`,
+  level: ['INFO', 'WARN', 'ERROR', 'DEBUG'][Math.floor(Math.random() * 4)],
+  txId: `TX-${Math.random().toString(36).substring(2, 10).toUpperCase()}`,
+  ifName: MOCK_INTERFACES[Math.floor(Math.random() * MOCK_INTERFACES.length)].name,
+  msg: `Transaction processed ${Math.random() > 0.8 ? 'with some latency issues' : 'successfully'}`,
+  duration: Math.floor(Math.random() * 500),
+  createdAt: new Date(Date.now() - Math.random() * 10000000).toISOString(),
+}));
 
 export const MOCK_REPROCESS = [
-  { id: 'RP-001', txId: 'TX-99812', ifName: '재보험사 데이터 전송', protocol: 'SFTP', reason: 'Auth Failed', retries: 2, status: 'pending', failedAt: '2024-04-20 14:20:11' },
-  { id: 'RP-002', txId: 'TX-99815', ifName: '손해사정 연계', protocol: 'SOAP', reason: 'Socket Timeout', retries: 1, status: 'pending', failedAt: '2024-04-20 15:45:00' },
+  { id: 'R-001', txId: 'TX-AB123456', ifName: '재보험사 데이터 전송', protocol: 'SFTP', reason: 'Connection timeout', retries: 0, status: 'pending', failedAt: '2024-04-21T10:00:00Z' },
+  { id: 'R-002', txId: 'TX-CD789012', ifName: '손해사정 연계', protocol: 'SOAP', reason: 'Invalid response format', retries: 2, status: 'pending', failedAt: '2024-04-21T11:30:00Z' },
 ];

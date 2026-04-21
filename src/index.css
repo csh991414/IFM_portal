@@ -7,7 +7,6 @@ body {
   font-size: 13px;
   line-height: 1.5;
 }
-
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 2px; }
@@ -17,7 +16,7 @@ body {
   50% { opacity: 0.3; }
 }
 
-/* Custom scrollbar for dark terminal */
-.terminal-scrollbar::-webkit-scrollbar-thumb {
-  background: #2C3E50;
+@keyframes flash {
+  0% { background-color: #FFFBEB; }
+  100% { background-color: transparent; }
 }

@@ -1,182 +1,160 @@
 import React, { useState } from 'react';
 import { colors, fonts } from '../styles/tokens';
 import { MOCK_INTERFACES } from '../data/mockData';
-import { Icon } from '../components/Icon';
 import ProtoBadge from '../components/ProtoBadge';
 import StatusBadge from '../components/StatusBadge';
+import Icon from '../components/Icon';
 
-const InterfaceManager = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [protocolFilter, setProtocolFilter] = useState('ALL');
+export default function InterfaceManager() {
+  const [filter, setFilter] = useState('ALL');
   const [statusFilter, setStatusFilter] = useState('ALL');
+  const [search, setSearch] = useState('');
 
-  const protocols = ['ALL', 'REST', 'SOAP', 'MQ', 'Batch', 'SFTP'];
-  const statuses = ['ALL', 'active', 'error', 'warning', 'inactive'];
-
-  const filteredInterfaces = MOCK_INTERFACES.filter(iface => {
-    const matchesSearch = iface.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                         iface.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         iface.system.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesProtocol = protocolFilter === 'ALL' || iface.protocol === protocolFilter;
-    const matchesStatus = statusFilter === 'ALL' || iface.status === statusFilter;
-    return matchesSearch && matchesProtocol && matchesStatus;
-  });
-
-  const tableHeaderStyle = {
-    textAlign: 'left',
-    padding: '12px 16px',
-    fontSize: '12px',
-    fontWeight: '600',
-    color: colors.textSecondary,
-    backgroundColor: '#FAFBFC',
-    borderBottom: `1px solid ${colors.border}`,
+  const containerStyle = {
+    padding: '24px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '20px',
   };
 
-  const tableCellStyle = {
+  const toolbarStyle = {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#FFF',
+    padding: '12px 20px',
+    borderRadius: '10px',
+    border: `1px solid ${colors.border}`,
+  };
+
+  const inputStyle = {
+    padding: '8px 12px',
+    paddingLeft: '32px',
+    borderRadius: '6px',
+    border: `1px solid ${colors.border}`,
+    fontSize: '12px',
+    width: '240px',
+    outline: 'none',
+  };
+
+  const filterButtonStyle = (active) => ({
+    padding: '6px 12px',
+    borderRadius: '6px',
+    border: `1px solid ${active ? colors.primary : colors.border}`,
+    backgroundColor: active ? colors.primaryBg : '#FFF',
+    color: active ? colors.primary : colors.textSecondary,
+    fontSize: '12px',
+    cursor: 'pointer',
+    fontWeight: active ? 'bold' : 'normal',
+  });
+
+  const tableCardStyle = {
+    backgroundColor: '#FFF',
+    borderRadius: '10px',
+    border: `1px solid ${colors.border}`,
+    overflow: 'hidden',
+  };
+
+  const tableStyle = {
+    width: '100%',
+    borderCollapse: 'collapse',
+    textAlign: 'left',
+  };
+
+  const thStyle = {
+    padding: '12px 16px',
+    fontSize: '11px',
+    color: colors.textMuted,
+    fontWeight: 'bold',
+    borderBottom: `1px solid ${colors.borderLight}`,
+    backgroundColor: colors.surfaceAlt,
+  };
+
+  const tdStyle = {
     padding: '14px 16px',
-    fontSize: '13px',
-    color: colors.textPrimary,
+    fontSize: '12px',
     borderBottom: `1px solid ${colors.borderLight}`,
   };
 
-  const filterButtonStyle = (isActive) => ({
-    padding: '6px 12px',
-    borderRadius: '6px',
-    fontSize: '12px',
-    fontWeight: '600',
-    cursor: 'pointer',
-    border: `1px solid ${isActive ? colors.primary : colors.border}`,
-    backgroundColor: isActive ? colors.primaryBg : '#FFFFFF',
-    color: isActive ? colors.primary : colors.textSecondary,
-    transition: 'all 0.2s',
+  const filteredData = MOCK_INTERFACES.filter(item => {
+    const matchProtocol = filter === 'ALL' || item.protocol === filter;
+    const matchStatus = statusFilter === 'ALL' || item.status === statusFilter;
+    const matchSearch = item.name.includes(search) || item.id.includes(search) || item.system.includes(search);
+    return matchProtocol && matchStatus && matchSearch;
   });
 
   return (
-    <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      {/* Toolbar */}
-      <div style={{
-        backgroundColor: '#FFFFFF',
-        borderRadius: '10px',
-        border: `1px solid ${colors.border}`,
-        padding: '16px 20px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '16px',
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ position: 'relative', width: '320px' }}>
-            <div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }}>
-              <Icon name="search" size={16} color={colors.textMuted} />
-            </div>
-            <input
-              type="text"
-              placeholder="인터페이스명, 시스템, ID 검색"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '10px 12px 10px 36px',
-                borderRadius: '8px',
-                border: `1px solid ${colors.border}`,
-                fontSize: '13px',
-                outline: 'none',
-                backgroundColor: colors.bg,
-              }}
+    <div style={containerStyle}>
+      <div style={toolbarStyle}>
+        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+          <div style={{ position: 'relative' }}>
+            <Icon name="search" style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: colors.textMuted }} />
+            <input 
+              style={inputStyle} 
+              placeholder="인터페이스명 / ID / 시스템 검색" 
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <button style={{
-            padding: '10px 20px',
-            backgroundColor: colors.primary,
-            color: '#FFFFFF',
-            borderRadius: '8px',
-            border: 'none',
-            fontSize: '13px',
-            fontWeight: '600',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-          }}>
-            <Icon name="bolt" size={14} color="#FFFFFF" />
-            인터페이스 등록
-          </button>
+          
+          <div style={{ display: 'flex', gap: '4px' }}>
+            {['ALL', 'REST', 'SOAP', 'MQ', 'Batch', 'SFTP'].map(p => (
+              <button key={p} style={filterButtonStyle(filter === p)} onClick={() => setFilter(p)}>
+                {p}
+              </button>
+            ))}
+          </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '12px', fontWeight: '700', color: colors.textLabel }}>프로토콜</span>
-            <div style={{ display: 'flex', gap: '6px' }}>
-              {protocols.map(p => (
-                <button
-                  key={p}
-                  onClick={() => setProtocolFilter(p)}
-                  style={filterButtonStyle(protocolFilter === p)}
-                >
-                  {p}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div style={{ width: '1px', height: '24px', backgroundColor: colors.border }} />
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '12px', fontWeight: '700', color: colors.textLabel }}>상태</span>
-            <div style={{ display: 'flex', gap: '6px' }}>
-              {statuses.map(s => (
-                <button
-                  key={s}
-                  onClick={() => setStatusFilter(s)}
-                  style={filterButtonStyle(statusFilter === s)}
-                >
-                  {s === 'ALL' ? '전체' : s}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
+        <button style={{
+          padding: '8px 16px',
+          backgroundColor: colors.primary,
+          color: '#FFF',
+          border: 'none',
+          borderRadius: '6px',
+          fontSize: '12px',
+          fontWeight: 'bold',
+          cursor: 'pointer',
+        }}>
+          인터페이스 등록
+        </button>
       </div>
 
-      {/* Table */}
-      <div style={{
-        backgroundColor: '#FFFFFF',
-        borderRadius: '10px',
-        border: `1px solid ${colors.border}`,
-        overflow: 'hidden',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
-      }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+      <div style={tableCardStyle}>
+        <table style={tableStyle}>
           <thead>
             <tr>
-              <th style={tableHeaderStyle}>I/F ID</th>
-              <th style={tableHeaderStyle}>인터페이스명</th>
-              <th style={tableHeaderStyle}>대상시스템</th>
-              <th style={tableHeaderStyle}>프로토콜</th>
-              <th style={tableHeaderStyle}>메서드·큐</th>
-              <th style={tableHeaderStyle}>엔드포인트</th>
-              <th style={tableHeaderStyle}>상태</th>
-              <th style={tableHeaderStyle}>TPS</th>
-              <th style={tableHeaderStyle}>응답(ms)</th>
-              <th style={tableHeaderStyle}>작업</th>
+              <th style={thStyle}>I/F ID</th>
+              <th style={thStyle}>인터페이스명</th>
+              <th style={thStyle}>대상시스템</th>
+              <th style={thStyle}>프로토콜</th>
+              <th style={thStyle}>메서드·큐</th>
+              <th style={thStyle}>엔드포인트</th>
+              <th style={thStyle}>상태</th>
+              <th style={thStyle}>TPS</th>
+              <th style={thStyle}>응답(ms)</th>
+              <th style={thStyle}>작업</th>
             </tr>
           </thead>
           <tbody>
-            {filteredInterfaces.map((iface, i) => (
-              <tr key={iface.id} style={{ backgroundColor: i % 2 === 1 ? '#FAFAFA' : '#FFFFFF' }}>
-                <td style={{ ...tableCellStyle, fontFamily: fonts.mono, fontSize: '12px' }}>{iface.id}</td>
-                <td style={{ ...tableCellStyle, fontWeight: '600' }}>{iface.name}</td>
-                <td style={tableCellStyle}>{iface.system}</td>
-                <td style={tableCellStyle}><ProtoBadge protocol={iface.protocol} /></td>
-                <td style={{ ...tableCellStyle, fontFamily: fonts.mono, fontSize: '12px' }}>{iface.method}</td>
-                <td style={{ ...tableCellStyle, fontFamily: fonts.mono, fontSize: '11px', color: colors.textSecondary }}>{iface.target}</td>
-                <td style={tableCellStyle}><StatusBadge status={iface.status} /></td>
-                <td style={tableCellStyle}>{iface.tps}</td>
-                <td style={tableCellStyle}>{iface.latency}ms</td>
-                <td style={tableCellStyle}>
+            {filteredData.map(item => (
+              <tr key={item.id}>
+                <td style={{ ...tdStyle, fontFamily: fonts.mono, fontWeight: 'bold' }}>{item.id}</td>
+                <td style={{ ...tdStyle, fontWeight: '500' }}>{item.name}</td>
+                <td style={tdStyle}>{item.system}</td>
+                <td style={tdStyle}><ProtoBadge protocol={item.protocol} /></td>
+                <td style={{ ...tdStyle, fontFamily: fonts.mono, fontSize: '11px' }}>{item.method}</td>
+                <td style={{ ...tdStyle, color: colors.textLabel, fontSize: '11px' }}>{item.target}</td>
+                <td style={tdStyle}><StatusBadge status={item.status} /></td>
+                <td style={tdStyle}>{item.tps}</td>
+                <td style={tdStyle}>{item.latency}</td>
+                <td style={tdStyle}>
                   <div style={{ display: 'flex', gap: '8px' }}>
-                    <button style={{ border: 'none', background: 'none', cursor: 'pointer', color: colors.primary }}>
-                      <Icon name="settings" size={16} />
+                    <button style={{ border: `1px solid ${colors.border}`, padding: '4px', borderRadius: '4px', backgroundColor: '#FFF', cursor: 'pointer' }}>
+                      <Icon name="bolt" style={{ color: colors.textSecondary, width: '12px', height: '12px' }} />
                     </button>
-                    <button style={{ border: 'none', background: 'none', cursor: 'pointer', color: colors.textMuted }}>
-                      <Icon name="log" size={16} />
+                    <button style={{ border: `1px solid ${colors.border}`, padding: '4px', borderRadius: '4px', backgroundColor: '#FFF', cursor: 'pointer' }}>
+                      <Icon name="log" style={{ color: colors.textSecondary, width: '12px', height: '12px' }} />
                     </button>
                   </div>
                 </td>
@@ -184,14 +162,7 @@ const InterfaceManager = () => {
             ))}
           </tbody>
         </table>
-        {filteredInterfaces.length === 0 && (
-          <div style={{ padding: '60px', textAlign: 'center', color: colors.textMuted }}>
-            검색 결과가 없습니다.
-          </div>
-        )}
       </div>
     </div>
   );
-};
-
-export default InterfaceManager;
+}
