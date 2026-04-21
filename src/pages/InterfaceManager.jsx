@@ -1,14 +1,43 @@
 import React, { useState } from 'react';
 import { colors, fonts } from '../styles/tokens';
-import { MOCK_INTERFACES } from '../data/mockData';
+import { useInterfaces } from '../hooks/useInterfaces';
+import { db } from '../firebase/config';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import ProtoBadge from '../components/ProtoBadge';
 import StatusBadge from '../components/StatusBadge';
 import Icon from '../components/Icon';
 
 export default function InterfaceManager() {
+  const { interfaces, loading, error } = useInterfaces();
   const [filter, setFilter] = useState('ALL');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [search, setSearch] = useState('');
+
+  const handleAddInterface = async () => {
+    try {
+      const nextId = `IF-${String(interfaces.length + 1).padStart(3, '0')}`;
+      const newInterface = {
+        id: nextId,
+        name: '신규 연계 서비스',
+        system: '내부 시스템',
+        protocol: 'REST',
+        method: 'POST',
+        status: 'active',
+        tps: 0,
+        errRate: 0,
+        latency: 0,
+        target: '/api/v1/new-service',
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      };
+
+      await addDoc(collection(db, 'interfaces'), newInterface);
+      alert('새로운 인터페이스가 등록되었습니다.');
+    } catch (err) {
+      console.error('인터페이스 등록 중 오류:', err);
+      alert('등록 실패: ' + err.message);
+    }
+  };
 
   const containerStyle = {
     padding: '24px',
@@ -76,7 +105,7 @@ export default function InterfaceManager() {
     borderBottom: `1px solid ${colors.borderLight}`,
   };
 
-  const filteredData = MOCK_INTERFACES.filter(item => {
+  const filteredData = interfaces.filter(item => {
     const matchProtocol = filter === 'ALL' || item.protocol === filter;
     const matchStatus = statusFilter === 'ALL' || item.status === statusFilter;
     const matchSearch = item.name.includes(search) || item.id.includes(search) || item.system.includes(search);
@@ -106,16 +135,19 @@ export default function InterfaceManager() {
           </div>
         </div>
 
-        <button style={{
-          padding: '8px 16px',
-          backgroundColor: colors.primary,
-          color: '#FFF',
-          border: 'none',
-          borderRadius: '6px',
-          fontSize: '12px',
-          fontWeight: 'bold',
-          cursor: 'pointer',
-        }}>
+        <button 
+          onClick={handleAddInterface}
+          style={{
+            padding: '8px 16px',
+            backgroundColor: colors.primary,
+            color: '#FFF',
+            border: 'none',
+            borderRadius: '6px',
+            fontSize: '12px',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+          }}
+        >
           인터페이스 등록
         </button>
       </div>
@@ -137,8 +169,12 @@ export default function InterfaceManager() {
             </tr>
           </thead>
           <tbody>
-            {filteredData.map(item => (
-              <tr key={item.id}>
+            {loading ? (
+              <tr><td colSpan="10" style={{ padding: '40px', textAlign: 'center', color: colors.textMuted }}>데이터 불러오는 중...</td></tr>
+            ) : error ? (
+              <tr><td colSpan="10" style={{ padding: '40px', textAlign: 'center', color: colors.error }}>연결 오류 발생</td></tr>
+            ) : filteredData.map(item => (
+              <tr key={item._id || item.id}>
                 <td style={{ ...tdStyle, fontFamily: fonts.mono, fontWeight: 'bold' }}>{item.id}</td>
                 <td style={{ ...tdStyle, fontWeight: '500' }}>{item.name}</td>
                 <td style={tdStyle}>{item.system}</td>

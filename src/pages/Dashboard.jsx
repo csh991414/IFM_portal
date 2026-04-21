@@ -1,12 +1,14 @@
 import React from 'react';
 import { colors, fonts } from '../styles/tokens';
-import { MOCK_INTERFACES } from '../data/mockData';
+import { useInterfaces } from '../hooks/useInterfaces';
 import ProtoBadge from '../components/ProtoBadge';
 import StatusBadge from '../components/StatusBadge';
 import Spark from '../components/Spark';
 import Icon from '../components/Icon';
 
 export default function Dashboard() {
+  const { interfaces, loading, error } = useInterfaces();
+  
   const containerStyle = {
     padding: '24px',
     display: 'flex',
@@ -127,8 +129,12 @@ export default function Dashboard() {
                 </tr>
               </thead>
               <tbody>
-                {MOCK_INTERFACES.map((item, idx) => (
-                  <tr key={item.id}>
+                {loading ? (
+                  <tr><td colSpan="9" style={{ padding: '40px', textAlign: 'center', color: colors.textMuted }}>데이터 불러오는 중...</td></tr>
+                ) : error ? (
+                  <tr><td colSpan="9" style={{ padding: '40px', textAlign: 'center', color: colors.error }}>연결 오류 발생</td></tr>
+                ) : interfaces.map((item, idx) => (
+                  <tr key={item._id || item.id}>
                     <td style={{ ...tdStyle(idx), fontFamily: fonts.mono, fontWeight: 'bold' }}>{item.id}</td>
                     <td style={{ ...tdStyle(idx), fontWeight: '500' }}>{item.name}</td>
                     <td style={tdStyle(idx)}>{item.system}</td>
@@ -155,12 +161,12 @@ export default function Dashboard() {
                 <div key={p}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', marginBottom: '4px' }}>
                     <span style={{ color: colors.textSecondary }}>{p}</span>
-                    <span style={{ fontWeight: 'bold' }}>{MOCK_INTERFACES.filter(i => i.protocol === p).length} 건</span>
+                    <span style={{ fontWeight: 'bold' }}>{interfaces.filter(i => i.protocol === p).length} 건</span>
                   </div>
                   <div style={{ height: '6px', backgroundColor: colors.borderLight, borderRadius: '3px' }}>
                     <div style={{
                       height: '100%',
-                      width: `${(MOCK_INTERFACES.filter(i => i.protocol === p).length / MOCK_INTERFACES.length) * 100}%`,
+                      width: `${(interfaces.filter(i => i.protocol === p).length / (interfaces.length || 1)) * 100}%`,
                       backgroundColor: colors.primary,
                       borderRadius: '3px'
                     }} />
@@ -185,7 +191,7 @@ export default function Dashboard() {
                 }}>
                   <StatusBadge status={s} />
                   <span style={{ fontSize: '16px', fontWeight: 'bold', color: colors.textPrimary }}>
-                    {MOCK_INTERFACES.filter(i => i.status === s).length}
+                    {interfaces.filter(i => i.status === s).length}
                   </span>
                 </div>
               ))}

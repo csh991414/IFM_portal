@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import TopBar from './components/TopBar';
@@ -8,6 +8,7 @@ import Monitoring from './pages/Monitoring';
 import LogViewer from './pages/LogViewer';
 import Reprocess from './pages/Reprocess';
 import { colors } from './styles/tokens';
+import { seedFirestore } from './firebase/seed';
 
 function Layout({ children }) {
   return (
@@ -24,6 +25,11 @@ function Layout({ children }) {
 }
 
 function App() {
+    useEffect(() => {
+    seedFirestore();
+  }, []);
+ 
+
   return (
     <BrowserRouter>
       <Routes>
