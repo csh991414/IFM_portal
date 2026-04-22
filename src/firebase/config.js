@@ -3,16 +3,13 @@ import { getFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  apiKey: "AIzaSyCf2XGyLKKqgFmGn8XC0QLEEgseveiSkFY",
+  authDomain: "ifm-portal.firebaseapp.com",
+  projectId: "ifm-portal",
+  storageBucket: "ifm-portal.firebasestorage.app",
+  messagingSenderId: "569318005429",
+  appId: "1:569318005429:web:289dc49b16276dc649fcfc"
 };
-
-// ✅ 임시 추가 - 확인 후 삭제
-console.log("Firebase Config:", firebaseConfig);
 
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
