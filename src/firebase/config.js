@@ -11,6 +11,9 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
+// ✅ 임시 추가 - 확인 후 삭제
+console.log("Firebase Config:", firebaseConfig);
+
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const auth = getAuth(app);
